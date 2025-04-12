@@ -1,0 +1,169 @@
+-- Must be run in Executor (Delta, Synapse, etc.)
+local UIS = game:GetService("UserInputService")
+local player = game:GetService("Players").LocalPlayer
+local playerGui = player:WaitForChild("PlayerGui")
+
+-- ScreenGui
+local screenGui = Instance.new("ScreenGui")
+screenGui.Name = "HyperscriptGui"
+screenGui.ResetOnSpawn = false
+screenGui.Parent = playerGui
+
+-- Rainbow Icon (draggable)
+local icon = Instance.new("ImageButton")
+icon.Name = "RainbowIcon"
+icon.Size = UDim2.new(0, 60, 0, 60)
+icon.Position = UDim2.new(0, 20, 0, 20)
+icon.Image = "rbxassetid://17747166627"
+icon.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+icon.BorderSizePixel = 0
+icon.Active = true
+icon.Draggable = true
+icon.Parent = screenGui
+
+-- RGB icon color loop
+task.spawn(function()
+	while true do
+		local t = tick()
+		icon.BackgroundColor3 = Color3.fromHSV(t % 5 / 5, 1, 1)
+		wait(0.05)
+	end
+end)
+
+-- Drag function
+local function makeDraggable(obj)
+	local dragging, dragStart, startPos
+	obj.InputBegan:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseButton1 then
+			dragging = true
+			dragStart = input.Position
+			startPos = obj.Position
+			input.Changed:Connect(function()
+				if input.UserInputState == Enum.UserInputState.End then dragging = false end
+			end)
+		end
+	end)
+	UIS.InputChanged:Connect(function(input)
+		if input.UserInputType == Enum.UserInputType.MouseMovement and dragging then
+			local delta = input.Position - dragStart
+			obj.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X,
+				startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+		end
+	end)
+end
+
+makeDraggable(icon)
+
+-- Main Frame
+local mainFrame = Instance.new("Frame")
+mainFrame.Size = UDim2.new(0, 350, 0, 320)
+mainFrame.Position = UDim2.new(0.5, -175, 0.5, -160)
+mainFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+mainFrame.BorderSizePixel = 0
+mainFrame.Active = true
+mainFrame.Visible = false
+mainFrame.Parent = screenGui
+
+makeDraggable(mainFrame)
+
+-- Title
+local title = Instance.new("TextLabel")
+title.Size = UDim2.new(1, 0, 0, 40)
+title.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+title.Text = "Hyperscript Script Loader"
+title.TextColor3 = Color3.new(1, 1, 1)
+title.TextSize = 22
+title.Font = Enum.Font.SourceSansBold
+title.Parent = mainFrame
+
+-- Close button
+local closeBtn = Instance.new("TextButton")
+closeBtn.Size = UDim2.new(0, 30, 0, 30)
+closeBtn.Position = UDim2.new(1, -35, 0, 5)
+closeBtn.Text = "X"
+closeBtn.BackgroundColor3 = Color3.fromRGB(200, 0, 0)
+closeBtn.TextColor3 = Color3.new(1, 1, 1)
+closeBtn.Font = Enum.Font.SourceSansBold
+closeBtn.TextSize = 18
+closeBtn.Parent = mainFrame
+closeBtn.MouseButton1Click:Connect(function()
+	mainFrame.Visible = false
+end)
+
+-- Open GUI on icon click
+icon.MouseButton1Click:Connect(function()
+	mainFrame.Visible = not mainFrame.Visible
+end)
+
+-- Scrollable holder
+local scroll = Instance.new("ScrollingFrame")
+scroll.Size = UDim2.new(1, -10, 1, -50)
+scroll.Position = UDim2.new(0, 5, 0, 45)
+scroll.CanvasSize = UDim2.new(0, 0, 0, 500)
+scroll.ScrollBarThickness = 6
+scroll.BackgroundTransparency = 1
+scroll.Parent = mainFrame
+
+-- Label "Made By HyperScripters"
+local credit = Instance.new("TextLabel")
+credit.Size = UDim2.new(1, 0, 0, 30)
+credit.Position = UDim2.new(0, 0, 0, 400)
+credit.Text = "Writing is made | Made By HyperScripters"
+credit.TextColor3 = Color3.new(1, 1, 1)
+credit.BackgroundTransparency = 1
+credit.Font = Enum.Font.SourceSansBold
+credit.TextSize = 16
+credit.Parent = scroll
+
+-- Script URLs and names
+local scripts = {
+	"https://rawscripts.net/raw/Universal-Script-Flashback-Script-26745",
+	"https://rawscripts.net/raw/Universal-Script-fly-gui-no-mio-34954",
+	"https://scriptblox.com/raw/Slap-Tower-Slap-Tower-Works-Other-Slap-Gamep*-Games-too-34092",
+	"https://raw.githubusercontent.com/EnesXVC/FireParts/main/Script",
+	"https://raw.githubusercontent.com/Hyperscriptscripterer/Spectate-/refs/heads/main/Spectate3",
+	"https://raw.githubusercontent.com/Hyperscriptscripterer/RgbRainbowHighlight/refs/heads/main/Rgb",
+	"https://raw.githubusercontent.com/Hyperscriptscripterer/script2/refs/heads/main/scriptt", -- extra one
+}
+
+local buttonNames = {
+	"[ Flashback Script ]",
+	"[ Fly gui ]",
+	"[ Hyper Slap Slap tower ]",
+	"[ FreeCam + FireParts ]",
+	"[ Spectator Player ]",
+	"[ Rgb Highlight ]",
+	"[ Extra Script 7 ]",
+}
+
+-- Rainbow-outline black button creator
+local function createRainbowButton(text, posY, parent, scriptUrl)
+	local btn = Instance.new("TextButton")
+	btn.Size = UDim2.new(0.9, 0, 0, 40)
+	btn.Position = UDim2.new(0.05, 0, 0, posY)
+	btn.Text = text
+	btn.TextColor3 = Color3.new(1, 1, 1)
+	btn.BackgroundColor3 = Color3.new(0, 0, 0)
+	btn.BorderSizePixel = 2
+	btn.Font = Enum.Font.SourceSansBold
+	btn.TextSize = 18
+	btn.Parent = parent
+
+	-- Rainbow border
+	task.spawn(function()
+		while btn do
+			local t = tick()
+			btn.BorderColor3 = Color3.fromHSV((t * 0.2) % 1, 1, 1)
+			wait(0.05)
+		end
+	end)
+
+	btn.MouseButton1Click:Connect(function()
+		loadstring(game:HttpGet(scriptUrl))()
+	end)
+end
+
+-- Create buttons
+for i = 1, #scripts do
+	createRainbowButton(buttonNames[i], 10 + (i - 1) * 45, scroll, scripts[i])
+end
