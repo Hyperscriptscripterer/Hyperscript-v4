@@ -133,7 +133,7 @@ local buttonNames = {
 	"[ FreeCam + FireParts ]",
 	"[ Spectator Player ]",
 	"[ Rgb Highlight ]",
-	"[ Extra Script 7 ]",
+	"[ Spectator Player V2 ]",
 }
 
 -- Rainbow-outline black button creator
